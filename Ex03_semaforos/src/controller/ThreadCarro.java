@@ -40,8 +40,8 @@ public class ThreadCarro extends Thread{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}finally {
-			equipe.release();
 			pista.release();
+			equipe.release();
 			lblCarro.setBounds(posEspera);
 		}
 		
