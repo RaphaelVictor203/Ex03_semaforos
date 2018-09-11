@@ -1,22 +1,21 @@
 package controller;
 
+import java.text.DecimalFormat;
 import java.util.concurrent.Semaphore;
 
 public class ContadorTempo extends Thread{
-	private int[] tempoVolta;
+	private double[] tempoVolta;
 	private static Carro gridLargada[];
 	private static int last;
 	private int firstPosVet;
-	private int tempo;
 	private ThreadCarro carro;
 	private Semaphore semaforo;
 	
 	public ContadorTempo(int qntdVoltas, ThreadCarro carro,int qntdCarros, Semaphore semaforo) {
 		this.gridLargada = new Carro[qntdCarros];
-		this.tempoVolta = new int[qntdVoltas];
+		this.tempoVolta = new double[qntdVoltas];
 		this.carro = carro;
 		this.firstPosVet = 0;
-		this.tempo = 0;
 		this.last = -1;
 		this.semaforo = semaforo;
 	}
@@ -26,27 +25,33 @@ public class ContadorTempo extends Thread{
 	}
 	
 	public void iniciaContagem() {
+		double tempoInicial;
+		double tempoFinal;
+		double tempoTotal;
 		for(int i=0; i<=tempoVolta.length; i++) {
+			tempoInicial = System.nanoTime();
 			while(carro.voltaFinalizada) {
 				try {
 					Thread.sleep(1000);
-					tempo++;
+////					tempo++;
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
+			tempoFinal = System.nanoTime();
+			tempoTotal = tempoFinal - tempoInicial;
+			tempoTotal /= Math.pow(10, 9);
 			carro.voltaFinalizada = true;
-			insertTempoVolta();
+			insertTempoVolta(tempoTotal);
 		}
 		consultaTempoVolta();
 		
 	}
 	
-	public void insertTempoVolta() {
+	public void insertTempoVolta(double tempo) {
 		if((firstPosVet < tempoVolta.length) && tempo > 0) {
 			this.tempoVolta[firstPosVet] = tempo;
-			tempo = 0;
 			firstPosVet++;
 		}
 	}
@@ -63,6 +68,10 @@ public class ContadorTempo extends Thread{
 			tempoVolta = ordenaTemposVolta(tempoVolta);
 			carro.carro.setMenorTempo(tempoVolta[0]);
 			addCarroGrid(carro.carro);
+			if(last == (gridLargada.length-1)){
+				gridLargada = ordenaGridLargada(gridLargada);
+				mostrarGrid();
+			}
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -75,10 +84,6 @@ public class ContadorTempo extends Thread{
 		if(last < (gridLargada.length-1)) {
 			gridLargada[last+1] = carro;
 			last++;
-		}
-		if(last == (gridLargada.length-1)){
-			gridLargada = ordenaGridLargada(gridLargada);
-			mostrarGrid();
 		}
 	}
 	
@@ -105,12 +110,12 @@ public class ContadorTempo extends Thread{
 		System.out.println("-------------------------------------");
 	}
 	
-	public int[] ordenaTemposVolta(int[] tempoVolta) {
+	public double[] ordenaTemposVolta(double[] tempoVolta) {
 		int in, out;
 		for(out=(tempoVolta.length-1); out>1; out--) {
 			for(in=0; in<out; in++) {
 				if(tempoVolta[in] > tempoVolta[in+1]) {
-					int temp;
+					double temp;
 					temp = tempoVolta[in];
 					tempoVolta[in] = tempoVolta[in+1];
 					tempoVolta[in+1] = temp;

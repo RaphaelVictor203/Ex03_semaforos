@@ -2,7 +2,7 @@ package controller;
 
 public class Carro {
 	private String nome, escuderia;
-	private int menorTempo;
+	private double menorTempo;
 	
 	public Carro(String nome, String escuderia) {
 		this.nome = nome;
@@ -25,11 +25,11 @@ public class Carro {
 		this.escuderia = escuderia;
 	}
 
-	public int getMenorTempo() {
+	public double getMenorTempo() {
 		return menorTempo;
 	}
 
-	public void setMenorTempo(int menorTempo) {
+	public void setMenorTempo(double menorTempo) {
 		this.menorTempo = menorTempo;
 	}
 	
