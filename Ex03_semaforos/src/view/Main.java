@@ -74,10 +74,8 @@ public class Main extends JFrame {
 		lblCarro7.setBounds(198, 104, 56, 16);
 		contentPane.add(lblCarro7);
 		
-		int vlMax = 30;//Velocidade maxima de todos os carros
 		int numVoltas = 3;//Numero de voltas que os carros irão dar na pista
 		int qntdCarros = 14;
-		Semaphore semaforoContTemp = new Semaphore(1);
 		
 		//Posições das curvas da pista e a posiçao inicial do carro
 		Rectangle[][] posCurvasVet = new Rectangle[][] {
@@ -117,7 +115,7 @@ public class Main extends JFrame {
 		for(int i=0; i<escuderias.length; i++){
 			Semaphore semaforoEquipe = new Semaphore(1);//Semaforo responsavel por controlar qual, dos dois carros da mesma equipe, ira entrar na pista 
 			for(int j=1; j<=2; j++) {// Este for é responsavel por criar os dois carros da mesma equipe
-				Thread carro = new ThreadCarro(escuderias[i], "Carro " + j, pista, numVoltas, lblCarros[i], posCurvasVet[i], cores[i], semaforoEquipe, posEspera[i], qntdCarros, semaforoContTemp);
+				Thread carro = new ThreadCarro(escuderias[i], "Carro " + j, pista, numVoltas, lblCarros[i], posCurvasVet[i], cores[i], semaforoEquipe, posEspera[i], qntdCarros);
 				carro.start();
 			}
 		}

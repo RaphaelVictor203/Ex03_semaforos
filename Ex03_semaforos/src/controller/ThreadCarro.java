@@ -15,9 +15,8 @@ public class ThreadCarro extends Thread{
 	public boolean voltaFinalizada;
 	private Rectangle[] posCurvasVet;
 	private Rectangle posEspera;
-	private Semaphore semaforoContTemp;
 	
-	public ThreadCarro(String escuderia, String nomeCarro, Semaphore pista, int numVoltas, JLabel lblCarro, Rectangle[] posCurvasVet, Color cor, Semaphore equipe, Rectangle posEspera, int qntdCarros, Semaphore semaforoContTemp) {
+	public ThreadCarro(String escuderia, String nomeCarro, Semaphore pista, int numVoltas, JLabel lblCarro, Rectangle[] posCurvasVet, Color cor, Semaphore equipe, Rectangle posEspera, int qntdCarros) {
 		this.carro = new Carro(nomeCarro, escuderia);
 		this.pista = pista;
 		this.numVoltas = numVoltas;
@@ -26,7 +25,7 @@ public class ThreadCarro extends Thread{
 		this.equipe = equipe;
 		this.posEspera = posEspera;
 		lblCarro.setForeground(cor);
-		contTempo = new ContadorTempo(numVoltas, this, qntdCarros, semaforoContTemp);
+		contTempo = new ContadorTempo(numVoltas, this, qntdCarros);
 	}
 	
 	public void run() {
@@ -52,7 +51,7 @@ public class ThreadCarro extends Thread{
 		int cont = 0;
 		while(cont < numVoltas) {
 			cont += checaPos();
-		}
+		}		
 	}
 	
 	public void mover(int x, int y) {
@@ -67,7 +66,8 @@ public class ThreadCarro extends Thread{
 	
 	public int checaPos() {
 		//int vlAtual = (int)((Math.random()*vlMaxima));
-		int vlAtual = (int)((Math.random()*5)*2);
+		//int vlAtual = (int)((Math.random()*5)*2);
+		int vlAtual = 4;
 		if((lblCarro.getBounds().y >= posCurvasVet[4].y) && (lblCarro.getBounds().x < posCurvasVet[4].x)) {
 			mover(vlAtual, 0);
 			if((lblCarro.getBounds().x >= posCurvasVet[4].x)) {

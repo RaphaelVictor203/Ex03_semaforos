@@ -4,20 +4,18 @@ import java.text.DecimalFormat;
 import java.util.concurrent.Semaphore;
 
 public class ContadorTempo extends Thread{
-	private double[] tempoVolta;
+	private int[] tempoVolta;
 	private static Carro gridLargada[];
 	private static int last;
-	private int firstPosVet;
 	private ThreadCarro carro;
-	private Semaphore semaforo;
+	private static Semaphore sem;
 	
-	public ContadorTempo(int qntdVoltas, ThreadCarro carro,int qntdCarros, Semaphore semaforo) {
+	public ContadorTempo(int qntdVoltas, ThreadCarro carro,int qntdCarros) {
 		this.gridLargada = new Carro[qntdCarros];
-		this.tempoVolta = new double[qntdVoltas];
+		this.tempoVolta = new int[qntdVoltas];
 		this.carro = carro;
-		this.firstPosVet = 0;
 		this.last = -1;
-		this.semaforo = semaforo;
+		this.sem = new Semaphore(1);
 	}
 	
 	public void run() {
@@ -25,35 +23,36 @@ public class ContadorTempo extends Thread{
 	}
 	
 	public void iniciaContagem() {
-		double tempoInicial;
-		double tempoFinal;
-		double tempoTotal;
+		int tempo;
+		int last = -1;
 		for(int i=0; i<=tempoVolta.length; i++) {
-			tempoInicial = System.nanoTime();
+			tempo = 0;
 			while(carro.voltaFinalizada) {
 				try {
 					Thread.sleep(1000);
-////					tempo++;
+					tempo++;
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
-			tempoFinal = System.nanoTime();
-			tempoTotal = tempoFinal - tempoInicial;
-			tempoTotal /= Math.pow(10, 9);
 			carro.voltaFinalizada = true;
-			insertTempoVolta(tempoTotal);
-		}
-		consultaTempoVolta();
-		
+			last = insertTempoVolta(tempo, last);
+		}		
+		//consultaTempoVolta();
+		tempoVolta = ordenaTemposVolta(tempoVolta);
+		carro.carro.setMenorTempo(tempoVolta[0]);
+		addCarroGrid(carro.carro);
+		System.out.println("last = " + this.last + ", tamanho grid = " + (gridLargada.length-1));
+		mostrarGrid();
 	}
 	
-	public void insertTempoVolta(double tempo) {
-		if((firstPosVet < tempoVolta.length) && tempo > 0) {
-			this.tempoVolta[firstPosVet] = tempo;
-			firstPosVet++;
+	public int insertTempoVolta(int tempo, int last) {
+		if((last < (tempoVolta.length-1)) && tempo > 0) {
+			this.tempoVolta[last+1] = tempo;
+			last++;
 		}
+		return last;
 	}
 	
 	public void consultaTempoVolta() {
@@ -63,28 +62,22 @@ public class ContadorTempo extends Thread{
 			System.out.println(" Tempo " + (i+1) + "° volta: " + tempoVolta[i]);
 		}
 		System.out.println("\n---------------------------------------------------");
+	}
+	
+	public void addCarroGrid(Carro carro) {
 		try {
-			semaforo.acquire();
-			tempoVolta = ordenaTemposVolta(tempoVolta);
-			carro.carro.setMenorTempo(tempoVolta[0]);
-			addCarroGrid(carro.carro);
-			if(last == (gridLargada.length-1)){
-				gridLargada = ordenaGridLargada(gridLargada);
-				mostrarGrid();
+			sem.acquire();
+			if(last < (gridLargada.length-1)) {
+				gridLargada[last+1] = carro;
+				last++;
 			}
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}finally {
-			semaforo.release();
+			sem.release();
 		}
-	}
-	
-	public void addCarroGrid(Carro carro) {
-		if(last < (gridLargada.length-1)) {
-			gridLargada[last+1] = carro;
-			last++;
-		}
+		
 	}
 	
 	public Carro[] ordenaGridLargada(Carro[] gridLargada) {
@@ -103,19 +96,22 @@ public class ContadorTempo extends Thread{
 	}
 	
 	public void mostrarGrid() {
-		System.out.println("---------- GRID DE LARGADA ----------");
-		for(int i=0; i<gridLargada.length; i++) {
-			System.out.println("Carro: " + gridLargada[i].getNome() + ", Escuderia: " + gridLargada[i].getEscuderia() + ", Tempo: " + gridLargada[i].getMenorTempo() + "s");
+		if(last == (gridLargada.length-1)){
+			gridLargada = ordenaGridLargada(gridLargada);
+			System.out.println("---------- GRID DE LARGADA ----------");
+			for(int i=0; i<gridLargada.length; i++) {
+				System.out.println((i+1) + "° Carro: " + gridLargada[i].getNome() + ", Escuderia: " + gridLargada[i].getEscuderia() + ", Tempo: " + gridLargada[i].getMenorTempo() + "s");
+			}
+			System.out.println("-------------------------------------");
 		}
-		System.out.println("-------------------------------------");
 	}
 	
-	public double[] ordenaTemposVolta(double[] tempoVolta) {
+	public int[] ordenaTemposVolta(int[] tempoVolta) {
 		int in, out;
 		for(out=(tempoVolta.length-1); out>1; out--) {
 			for(in=0; in<out; in++) {
 				if(tempoVolta[in] > tempoVolta[in+1]) {
-					double temp;
+					int temp;
 					temp = tempoVolta[in];
 					tempoVolta[in] = tempoVolta[in+1];
 					tempoVolta[in+1] = temp;
