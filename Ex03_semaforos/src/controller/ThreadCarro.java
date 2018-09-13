@@ -66,8 +66,8 @@ public class ThreadCarro extends Thread{
 	
 	public int checaPos() {
 		//int vlAtual = (int)((Math.random()*vlMaxima));
-		//int vlAtual = (int)((Math.random()*5)*2);
-		int vlAtual = 4;
+		int vlAtual = (int)((Math.random()*5)*2);
+		//int vlAtual = 3;
 		if((lblCarro.getBounds().y >= posCurvasVet[4].y) && (lblCarro.getBounds().x < posCurvasVet[4].x)) {
 			mover(vlAtual, 0);
 			if((lblCarro.getBounds().x >= posCurvasVet[4].x)) {
