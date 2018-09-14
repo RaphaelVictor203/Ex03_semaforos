@@ -8,14 +8,14 @@ public class ContadorTempo extends Thread{
 	private static Carro gridLargada[];
 	private static int last;
 	private ThreadCarro carro;
-	private static Semaphore sem;
+	private Semaphore semaforoTempos;
 	
-	public ContadorTempo(int qntdVoltas, ThreadCarro carro,int qntdCarros) {
+	public ContadorTempo(int qntdVoltas, ThreadCarro carro,int qntdCarros, Semaphore semaforoTempos) {
 		this.gridLargada = new Carro[qntdCarros];
 		this.tempoVolta = new int[qntdVoltas];
 		this.carro = carro;
 		this.last = -1;
-		this.sem = new Semaphore(1);
+		this.semaforoTempos = semaforoTempos;
 	}
 	
 	public void run() {
@@ -66,16 +66,16 @@ public class ContadorTempo extends Thread{
 	
 	public void addCarroGrid(Carro carro) {
 		try {
-			sem.acquire();
+			semaforoTempos.acquire();
 			if(last < (gridLargada.length-1)) {
 				gridLargada[last+1] = carro;
 				last++;
-			}
+			}			
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}finally {
-			sem.release();
+			semaforoTempos.release();
 		}
 		
 	}

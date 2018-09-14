@@ -111,11 +111,13 @@ public class Main extends JFrame {
 		//Semaforo que controla o uso da pista entre os carros
 		Semaphore pista = new Semaphore(5);
 		
+		Semaphore semaforoTempos = new Semaphore(1);
+		
 		//For responsavel por criar os carros
 		for(int i=0; i<escuderias.length; i++){
 			Semaphore semaforoEquipe = new Semaphore(1);//Semaforo responsavel por controlar qual, dos dois carros da mesma equipe, ira entrar na pista 
 			for(int j=1; j<=2; j++) {// Este for é responsavel por criar os dois carros da mesma equipe
-				Thread carro = new ThreadCarro(escuderias[i], "Carro " + j, pista, numVoltas, lblCarros[i], posCurvasVet[i], cores[i], semaforoEquipe, posEspera[i], qntdCarros);
+				Thread carro = new ThreadCarro(escuderias[i], "Carro " + j, pista, numVoltas, lblCarros[i], posCurvasVet[i], cores[i], semaforoEquipe, posEspera[i], qntdCarros, semaforoTempos);
 				carro.start();
 			}
 		}
